@@ -1,9 +1,11 @@
-const {MongoClient} = require('mongodb');//imports mongoDB to access atlas database
-const { mongo } = require('mongoose');
+import mongodb from 'mongodb';//imports mongoDB to access atlas database
+const {MongoClient} = mongodb;
+import mongoose from 'mongoose';
+const { mongo } = mongoose;
 //To get the uri you have to go to MongoDB Atlas and click connect and follow the steps
 const uri = "" //holds the connection uri to our database
 const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});//creates an instance of our Mongo Client
-module.exports = {//this declares that you want to expose this function for use in whatever code requires this file
+export default {//this declares that you want to expose this function for use in whatever code requires this file
     initDB: async function connector(){//creates asynchronous function called main
         try{//tries to do the following
             await client.connect(); //wait for the client to connect to our cluster before moving on
