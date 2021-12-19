@@ -1,8 +1,9 @@
 import React from 'react';
+import './CreateButton.css';
 
 function CreateAccount(props){
     return(
-        <button onClick={()=>{props.view('create')}}>Create Account</button>
+        <button className="create-button" onClick={()=>{props.view('create')}}>Create Account</button>
     )
 }
 

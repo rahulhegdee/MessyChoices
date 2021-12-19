@@ -1,6 +1,7 @@
-const {MongoClient} = require('mongodb')//imports mongoDB to access atlas database
+const {MongoClient} = require('mongodb');//imports mongoDB to access atlas database
+const { mongo } = require('mongoose');
 //To get the uri you have to go to MongoDB Atlas and click connect and follow the steps
-const uri = "[KEY]" //holds the connection uri to our database
+const uri = "mongodb+srv://rahulhegde:kurr3569@beginnerdb-tnero.azure.mongodb.net/test?retryWrites=true&w=majority" //holds the connection uri to our database
 const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});//creates an instance of our Mongo Client
 module.exports = {//this declares that you want to expose this function for use in whatever code requires this file
     initDB: async function connector(){//creates asynchronous function called main
@@ -17,22 +18,84 @@ module.exports = {//this declares that you want to expose this function for use 
         }
         */
     },
-    addToDB: async function addPerson(newPerson){
+    addUser: async function addPerson(newPerson){
         const result = await client.db("BeginnerProject").collection("BeginnerDB").insertOne(newPerson);//inserts one BSON into our collection using MongoDB function "insertOne"
-        console.log(`New listing created with the following id: ${result.insertedId}`);//lets us know what the id_ of our newly created object is
+        console.log(`New user created with the following id: ${result.insertedId}`);//lets us know what the id_ of our newly created object is
     },
-    getDB: async function getPeople(){
-        const cursor = await client.db("BeginnerProject").collection("BeginnerDB").find();
+    getUser: async function getPerson(username){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").findOne({'data':'user', 'username':username});
+        return result;
+    },
+    loginUser: async function loginUser(username, password){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").findOne({'data':'user', 'username':username, 'password':password});
+        return result;
+    },
+    updateUser: async function updatePerson(name, password){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").updateOne({'data':'user', 'username':name},{'$set':{'password':password}});
+        return `${result.modifiedCount}`;
+    },
+    deleteUser: async function deletePerson(name){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").deleteOne({'data':'user', 'username':name});
+        await client.db("BeginnerProject").collection("BeginnerDB").deleteMany({'data':'list', 'user':name});
+        await client.db("BeginnerProject").collection("BeginnerDB").deleteMany({'data':'item', 'user':name});
+        return `${result.deletedCount}`;
+    },
+    deleteID: async function deleteID(id){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").deleteOne({'_id': new mongo.ObjectId(id)});
+        return `${result.deletedCount}`;
+    },
+    addList: async function addList(newList){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").insertOne(newList);
+        console.log(`New list created with the following id: ${result.insertedId}`);//lets us know what the id_ of our newly created object is
+    },
+    getLists: async function getLists(username){
+        const cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'list', 'user':username});
         const results = await cursor.toArray();
         return results;
     },
-    updateDB: async function updatePerson(name, age){
-        const result = await client.db("BeginnerProject").collection("BeginnerDB").updateOne({'username':name},{'$set':{'password':password}});
+    updateList: async function updateList(listID, name, type){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").updateOne({'_id':new mongo.ObjectId(listID)}, {'$set':{'name':name, 'type':type}});
         return `${result.modifiedCount}`;
     },
-    deleteFromDB: async function deletePerson(name){
-        const result = await client.db("BeginnerProject").collection("BeginnerDB").deleteOne({'username':name});
+    deleteList: async function deleteList(listID){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").deleteOne({'_id':new mongo.ObjectId(listID)});
+        await client.db("BeginnerProject").collection("BeginnerDB").deleteMany({'data':'item', 'listID':listID});
         return `${result.deletedCount}`;
+    },
+    addItem: async function addItem(newItem){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").insertOne(newItem);
+        console.log(`New item created with the following id: ${result.insertedId}`);//lets us know what the id_ of our newly created object is
+    },
+    getItems: async function getItems(listID){
+        const cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID});
+        const results = await cursor.toArray();
+        return results;
+    },
+    updateItem: async function updateItem(itemID, name, keyword, rank){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").updateOne({'_id':new mongo.ObjectId(itemID)}, {'$set':{'name':name, 'keyword':keyword, 'rank':rank}});
+        return `${result.modifiedCount}`;
+    },
+    deleteItem: async function deleteItem(itemID){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").deleteOne({'_id':new mongo.ObjectId(itemID)});
+        return `${result.deletedCount}`;
+    },
+    getRandom: async function getRandom(listID, keyword, rank){
+        let cursor;
+        if(keyword != "" && rank != ""){ //both parameters provided
+            cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID, 'keyword':keyword, 'rank':rank});
+        }
+        else if(keyword != ""){ //only keyword provided
+            cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID, 'keyword':keyword});
+        }
+        else if(rank != ""){//only rank provided
+            cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID, 'rank':rank});
+        }
+        else{//neither provided
+            cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID});
+        }
+        const results = await cursor.toArray();
+        const randIndex = Math.floor(Math.random() * results.length);//picks random integer from 0 to results.length-1
+        return results[randIndex];
     }
 };
 //connector().catch(console.error);
