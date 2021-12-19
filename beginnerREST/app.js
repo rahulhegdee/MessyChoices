@@ -95,7 +95,7 @@ function verifyToken(req, res, next){ //verifies JWT token in authorization head
         //let bearerToken = bearer.split(' ');
         //let token = bearerToken[1];
         req.token = bearer;
-        verify(req.token, 'rahulsecretkey', (err,authorizedData)=>{
+        verify(req.token, 'RRkurr3569', (err,authorizedData)=>{
             if(err){
                 res.status(401).json({
                     'message':'Access Denied'
@@ -162,7 +162,7 @@ app.post("/account", async function(req, res){//login an existing user
                 exp: Math.floor((Date.now()/1000)+3600),
                 id: user._id,
                 admin: false
-            },'rahulsecretkey', (err, token) => {
+            },'RRkurr3569', (err, token) => {
                 if(token){
                     res.status(200).json({
                         'message': 'verified',
