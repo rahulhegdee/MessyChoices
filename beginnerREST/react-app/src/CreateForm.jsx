@@ -19,7 +19,7 @@ function CreateForm(props){
         }
     }
     function checkUsername(){
-        let userName = document.getElementById('username').value;
+        let userName = document.getElementById('newUsername').value;
         if(userName.length == 0){letUserMet(true); letUserLength(true); letUserExists(false); return;}
         //we only want to return when there are errors with the username, if one condition is met we still need to check others
         if(userName.match(/^[0-9a-zA-Z]+$/)){
@@ -35,7 +35,7 @@ function CreateForm(props){
         else{letUserLength(false); return;}
 
         letUserExists(false);
-        fetch('http://localhost:8080/usernames',{
+        fetch('http://localhost:8080/username',{
             'method': 'POST',
             headers:{
                 'Accept': 'application/json',
@@ -43,40 +43,62 @@ function CreateForm(props){
             },
             body:JSON.stringify({'username':userName})
         })
-        .then(response => response.json())
+        .then(response => response.status)
         .then(response => {
-            letUserExists(response);
+            if(response === 200){
+                letUserExists(false);
+            }
+            else {
+                letUserExists(true);
+            }
         })
         .catch(err => console.log(err));
 
     }
     async function createUser(){
-        let userName = document.getElementById('username').value;
-        let passWord = document.getElementById('initPassword').value;
-        await props.user(userName, passWord);//adds user to Database
-        fetch('http://localhost:8080/account',{
+        let username = document.getElementById('newUsername').value;
+        let password = document.getElementById('initPassword').value;
+        await fetch('http://localhost:8080/user',{
             'method':'POST',
-            headers:{
+            headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
-            body:JSON.stringify({'username':userName,'password':passWord})
+            body:JSON.stringify({'username':username, 'password':password})
         })
-        .then(response => response.json())
+        .then(response => response.status)
         .then(response => {
-            if(response.message === 'unverified'){
-                setVerified(false);
-            }
-            else{
-                cookies.set('token', response, {path:'/',expires:new Date(Date.now()+(1000*60*60))});
-                setVerified(true);
+            if(response === 201){
+                loginUser(username, password);
             }
         })
-        .catch(err => console.log(err))
-
-        if(verified){
-            props.submit();
-        }
+        .catch(err => console.log(err));
+    }
+    async function loginUser(username, password){
+        //setTimeout(function (){ //note: uncomment if you experience the submit button having to be pressed more than once
+            fetch('http://localhost:8080/account',{
+                'method':'POST',
+                headers:{
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body:JSON.stringify({'username':username,'password':password})
+            })
+            .then(response => Promise.all([response.json(), response.status]))
+            .then(([res, status]) => {
+                if(status === 200){
+                    cookies.set('token', res, {path:'/',expires:new Date(Date.now()+(1000*60*60))});
+                    setVerified(true);
+                }
+                else{
+                    setVerified(false);
+                }
+            })
+            .catch(err => console.log(err))
+            if(verified){
+                props.submit();
+            }
+        //}, 100);
     }
     function handleSubmit(event){
         event.preventDefault();
@@ -87,10 +109,10 @@ function CreateForm(props){
     }
     React.useEffect(() => {
         if(passMatch && !userExists && userMet && userLength){
-            document.getElementById('submit').disabled = false;
+            document.getElementById('createAccountSubmit').disabled = false;
         }
         else{
-            document.getElementById('submit').disabled = true;
+            document.getElementById('createAccountSubmit').disabled = true;
         }
         
         if(verified){
@@ -99,9 +121,8 @@ function CreateForm(props){
     });
     return(
         <form onSubmit={handleSubmit}>
-            <h1>Welcome!</h1>
-            <label htmlFor='username'>Username:</label><br/>
-            <input type='text' id="username" onChange={() => {checkUsername();}} required></input>
+            <label htmlFor='newUsername'>Username:</label><br/>
+            <input type='text' id="newUsername" onChange={() => {checkUsername();}} required></input>
             {!userMet && <label style={{color:'red'}}> Username should only contain letters and numbers! </label>}
             {userMet && (userLength==null) && <label style={{color:'red'}}> Username too short! </label>}
             {userMet && (userLength==false) && <label style={{color:'red'}}> Username too long! </label>}
@@ -112,7 +133,7 @@ function CreateForm(props){
             <input type='password' id="retypePassword" required onChange={() => {passCheck();}}></input>
             {!passMatch && <label style={{color:'red'}}> Password does not match!</label>}
             <br/>
-            <input type="submit" id="submit"></input>
+            <input type="button" value='Submit' id="createAccountSubmit" onClick={handleSubmit}></input>
             <input type="button" value='Back' onClick={back}></input>
         </form>
     )

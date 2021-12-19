@@ -1,0 +1,35 @@
+body{
+    background-color: rgba(223, 196, 162, 0.719);
+}
+
+.title-wrapper{
+    display: flex;
+}
+
+.title-text{
+    color: rgb(95, 78, 59);
+    position: relative;
+    top: 10em;
+    left: 10em;
+    word-wrap: normal;
+    flex: 50%;
+
+    font-family:Georgia, 'Times New Roman', Times, serif;
+    font-size: large;
+}
+.title-column{
+    flex: 50%;
+}
+
+.title-input{
+    position: relative;
+    top: 150px;
+    height: 200px;
+    width: 400px;
+    text-align: center;
+    background-color: rgb(53, 48, 41);
+    border: 1px solid rgb(100, 100, 100);
+    border-radius: 20px;
+    padding: 5px;
+    box-shadow: rgba(0, 0, 0, .2) 3px 3px 3px;
+}
