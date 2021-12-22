@@ -11,8 +11,13 @@ function MakeItemForm(props){
         let name = document.getElementById("itemName"+props.list._id).value;
         let listid = props.list._id;
         let listName = props.list.name;
-        let keyword = document.getElementById("itemKeyword"+props.list._id).value;
-        let rank = document.getElementById("itemRank"+props.list._id).value;
+        let filterObj = {}; 
+        props.list.filters.forEach(filter => { 
+            let currFilterElement = document.getElementById(`${filter}`+props.list._id).value;
+            if(currFilterElement !== ''){
+                filterObj[filter] = currFilterElement;
+            }
+        });
         fetch(`http://localhost:8080/list/item/${listid}`, {
             'method':'POST',
             'headers': {
@@ -23,8 +28,7 @@ function MakeItemForm(props){
             'body':JSON.stringify({
                 listName,
                 name,
-                keyword,
-                rank
+                filterObj
             })
         })
         .then(response=>response.json())
@@ -38,14 +42,14 @@ function MakeItemForm(props){
             <br />
             <input type="text" id={"itemName"+props.list._id} required />
             <br />
-            <label htmlFor={"itemKeyword"+props.list._id}>Keyword: (Optional)</label>
-            <br />
-            <input type="text" id={"itemKeyword"+props.list._id}/>
-            <br />
-            <label htmlFor={"itemRank"+props.list._id}>Rank: (Optional)</label>
-            <br />
-            <input type="text" id={"itemRank"+props.list._id}/>
-            <br />
+            {props.list.filters.map(filter => 
+                <div>
+                    <label htmlFor={`${filter}`+props.list._id}>{filter}: </label>
+                    <br />
+                    <input type="text" id={`${filter}`+props.list._id}/>
+                    <br />
+                </div>
+            )}
             <input type="submit"></input>
             <input type='button' value='Back' onClick={back}></input>
         </form>

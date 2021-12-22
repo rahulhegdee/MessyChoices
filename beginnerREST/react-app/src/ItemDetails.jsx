@@ -22,12 +22,9 @@ function Item(props){
     }
     return(
         <div>
-            {(props.keyword !== "") && <p>Keyword: {props.keyword}</p>} 
-            {(props.rank !== "") && <p>Rank: {props.rank}</p>} 
-            {(props.keyword === "") && (props.rank === "") && <p>No Details</p>}
             <button onClick={() => switchUpdateItem()}>Update Item</button>
             <button onClick={() => deleteItem()}>Delete Item</button>
-            {updateForm && <ChangeItemForm item={props.item} name={props.name} keyword={props.keyword} rank={props.rank} change={props.change} submit={switchUpdateItem}/>}
+            {updateForm && <ChangeItemForm item={props.item} name={props.name} change={props.change} submit={switchUpdateItem}/>}
         </div>
     )
 }

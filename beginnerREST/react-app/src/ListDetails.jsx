@@ -55,6 +55,20 @@ function ListDetails(props){
         .then(props.update())
         .catch(err=>console.log(err));
     }
+    function convertToArrayString() {
+        if(!Array.isArray(props.list.filters)){
+            return "N/A";
+        }
+        let str = "[";
+        for(let i = 0; i < props.list.filters.length; i++){
+            str += `${props.list.filters[i]}`;
+            if(i != props.list.filters.length-1){
+                str += ", ";
+            }
+        }
+        str += "]";
+        return str;
+    }
     React.useEffect(()=>{
         getItems();
     },[])
@@ -62,6 +76,7 @@ function ListDetails(props){
         <div>
             <p>name: {props.name}</p>
             <p>type: {props.type}</p>
+            <p>filters: {convertToArrayString()} </p>
             <h6>Items: </h6>
             {items.map(item => ( //goes through the lists array and for each list in it, maps a new ShowListButton with that list in its props
                 <ItemButton item={item} update={getItems} key={item._id}/>//key is needed to identify each unique element as different

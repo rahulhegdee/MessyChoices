@@ -267,10 +267,9 @@ app.post("/list/item/:listid", verifyToken, async function(req, res){ //posts an
     let listID = req.params.listid;
     let listName = req.body.listName;
     let name = req.body.name;
-    let keyword = req.body.keyword;
-    let rank = req.body.rank;
+    let filterObj = req.body.filterObj;
     try{
-        let item = {'data':'item', 'user':req.tokenData.username, 'listID':listID, 'listName':listName, 'name': name, 'keyword': keyword, 'rank':rank};
+        let item = {'data':'item', 'user':req.tokenData.username, 'listID':listID, 'listName':listName, 'name': name, ...filterObj};
         addItem(item);
         res.status(200).json({
             'message':'Item Created Successfully'
@@ -298,10 +297,8 @@ app.get("/list/items/:listid", verifyToken, async function(req, res){ //gets all
 })
 app.post("/random/:listid", verifyToken, async function(req, res){//selects a random element from the provided list (and uses specific parameters of search if requested)
     let listID = req.params.listid;
-    let keyword = req.body.keyword;
-    let rank = req.body.rank;
     try{
-        let item = await getRandom(listID, keyword, rank);
+        let item = await getRandom(listID);
         if(item === undefined){
             res.status(404).json({
                 "item":{'name':"None Found!"}
@@ -352,10 +349,8 @@ app.delete("/list/:listid", verifyToken, async function(req, res){
 app.patch("/item/:itemid", verifyToken, async function(req, res){
     let itemID = req.params.itemid;
     let name = req.body.name;
-    let keyword = req.body.keyword;
-    let rank = req.body.rank;
     try{
-        await updateItem(itemID, name, keyword, rank);
+        await updateItem(itemID, name);
         res.status(200).json({
             "message":"successfully updated"
         })

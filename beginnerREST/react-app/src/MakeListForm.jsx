@@ -3,20 +3,31 @@ import Cookies from 'universal-cookie';
 function MakeListForm(props){
     const cookies = new Cookies();
     const [filters, setFilters] = useState([]);
-    console.log(filters);
-    console.log("woot");
+    const [filterErr, setFilterErr] = useState([]);
     function addEmptyFilter(){
         setFilters([...filters, '']);
+        setFilterErr([...filterErr, false]);
     }
     function removeFilter(index){
         let arr = [...filters];
+        let err = [...filterErr];
         arr.splice(index, 1);
+        err.splice(index, 1);
         setFilters(arr);
+        setFilterErr(err);
     }
     function changeFilterName(index){
         let text = document.getElementById(`filterText ${index}`).value;
+        let err = [...filterErr];
+        if(text === "data" || text === "user" || text === "listID" || text === "listName" || text === "name"){
+            err[index] = true;
+            setFilterErr(err);
+            return;
+        }
         let arr = [...filters];
         arr[index] = text;
+        err[index] = false;
+        setFilterErr(err);
         setFilters(arr);
     }
     function back(){
@@ -56,6 +67,7 @@ function MakeListForm(props){
                 <div key={`filter ${index}`}>
                     <input id={`filterText ${index}`} type='text' value={filters[index]} onChange={() => {changeFilterName(index)}} required></input>
                     <input type='button' onClick={() => {removeFilter(index)}} value='Remove'></input>
+                    {filterErr[index] && <label style={{color:'red'}}>That filter name was not available!</label>}
                     <br/>
                 </div>
             ))}

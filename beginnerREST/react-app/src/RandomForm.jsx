@@ -5,8 +5,6 @@ function RandomForm(props){
     function getRandom(event){
         event.preventDefault();
         let listid = props.list._id;
-        let keyword = document.getElementById("keywordFilter" + props.list._id).value;
-        let rank = document.getElementById("rankFilter" + props.list._id).value;
         fetch(`http://localhost:8080/random/${listid}`,{
             'method':'POST',
             'headers':{
@@ -15,8 +13,6 @@ function RandomForm(props){
                 'authorization':cookies.get('token').token
             },
             'body':JSON.stringify({
-                'keyword':keyword,
-                'rank':rank
             })
         })
         .then(response => response.json())
@@ -26,14 +22,6 @@ function RandomForm(props){
     return(
         <form onSubmit={getRandom}>
             <p>Type in any optional parameters for the random item: </p>
-            <label htmlFor={"keywordFilter" + props.list._id}>Keyword: (Optional)</label>
-            <br />
-            <input type="text" id={"keywordFilter" + props.list._id}/>
-            <br />
-            <label htmlFor={"rankFilter" + props.list._id}>Rank: (Optional)</label>
-            <br />
-            <input type="text" id={"rankFilter" + props.list._id}/>
-            <br />
             <input type="submit"></input>
         </form>
     )

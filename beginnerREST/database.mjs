@@ -73,28 +73,16 @@ export default {//this declares that you want to expose this function for use in
         const results = await cursor.toArray();
         return results;
     },
-    updateItem: async function updateItem(itemID, name, keyword, rank){
-        const result = await client.db("BeginnerProject").collection("BeginnerDB").updateOne({'_id':new mongo.ObjectId(itemID)}, {'$set':{'name':name, 'keyword':keyword, 'rank':rank}});
+    updateItem: async function updateItem(itemID, name, filters){
+        const result = await client.db("BeginnerProject").collection("BeginnerDB").updateOne({'_id':new mongo.ObjectId(itemID)}, {'$set':{'name':name}});
         return `${result.modifiedCount}`;
     },
     deleteItem: async function deleteItem(itemID){
         const result = await client.db("BeginnerProject").collection("BeginnerDB").deleteOne({'_id':new mongo.ObjectId(itemID)});
         return `${result.deletedCount}`;
     },
-    getRandom: async function getRandom(listID, keyword, rank){
-        let cursor;
-        if(keyword != "" && rank != ""){ //both parameters provided
-            cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID, 'keyword':keyword, 'rank':rank});
-        }
-        else if(keyword != ""){ //only keyword provided
-            cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID, 'keyword':keyword});
-        }
-        else if(rank != ""){//only rank provided
-            cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID, 'rank':rank});
-        }
-        else{//neither provided
-            cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID});
-        }
+    getRandom: async function getRandom(listID, filters){
+        let cursor = await client.db("BeginnerProject").collection("BeginnerDB").find({'data':'item', 'listID':listID});
         const results = await cursor.toArray();
         const randIndex = Math.floor(Math.random() * results.length);//picks random integer from 0 to results.length-1
         return results[randIndex];
